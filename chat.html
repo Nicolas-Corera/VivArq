@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat - VivArq</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+    />
+    <script type="module" src="js/firebase-config.js" defer></script>
+    <script type="module" src="js/home.js" defer></script>
+    <script type="module" src="js/chat.js" defer></script>
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/chat.css" />
+    <link rel="shortcut icon" href="images/Logo.png" type="image/x-icon" />
+    <script src="js/loadPages.js"></script>
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <header class="navbar">
+      <div class="logo" id="logo">
+        <a style="cursor: pointer" class="homeBtn"><h1>VivArq</h1></a>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="allProjects.html">Proyectos</a></li>
+          <li><a href="allProfessionals.html">Profesionales</a></li>
+          <li><a href="contactUs.html">Contacto</a></li>
+        </ul>
+      </nav>
+      <div>
+        <div class="auth-buttons" id="authButtons">
+          <a href="login.html" class="btn btn-login">Acceder</a>
+        </div>
+        <div class="user-menu" id="userMenu">
+          <div class="notification-indicator" id="userMenuNotification">0</div>
+          <div class="profile-icon">
+            <img id="userAvatar" src="" alt="Avatar" style="display: none" />
+            <i id="defaultIcon" class="fas fa-user"></i>
+          </div>
+          <div class="user-info">
+            <p class="user-name" id="userName">Irwin Williams</p>
+            <p class="accountTypeProfile" id="accountTypeProfile">
+              Personal account
+            </p>
+          </div>
+          <div class="dropdown-menu" id="dropdownMenu">
+            <a href="chat.html" class="menu-item" id="messagesLink">
+              <i class="fas fa-envelope"></i>Mensajes
+              <span class="count">0</span>
+            </a>
+            <a href="#" class="menu-item" id="accountLink">
+              <i class="fas fa-user"></i>Mi Cuenta
+            </a>
+            <a href="#" class="menu-item" id="settingsLink">
+              <i class="fas fa-cog"></i>Configuración
+            </a>
+            <a href="#" class="menu-item" id="faqLink">
+              <i class="fa-solid fa-circle-question"></i>FAQ
+            </a>
+            <a href="#" class="menu-item logout" id="logoutBtn">
+              <i class="fas fa-sign-out-alt"></i>Cerrar Sesión
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="hiddenMenuToggle">
+        <button class="menu-toggle" id="menuToggle">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- CHAT CONTAINER -->
+    <div class="chat-wrapper">
+      <!-- SIDEBAR DE CONTACTOS -->
+      <aside class="chat-sidebar">
+        <div class="sidebar-header">
+          <h2>Mensajes</h2>
+          <!-- <button class="btn-new-chat" id="newChatBtn" title="Nuevo chat">
+            <i class="fas fa-edit"></i>
+          </button> -->
+        </div>
+
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input
+            type="text"
+            id="searchContacts"
+            placeholder="Buscar conversaciones..."
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="contacts-container" id="contactsContainer">
+          <div class="empty-state" id="emptyContactsState">
+            <i class="fas fa-comments"></i>
+            <h3>Sin conversaciones</h3>
+            <p>Aún no tienes chats activos</p>
+          </div>
+          <div class="contacts-list" id="contactsList"></div>
+        </div>
+      </aside>
+
+      <!-- ÁREA PRINCIPAL DEL CHAT -->
+      <main class="chat-main">
+        <!-- ESTADO VACÍO -->
+        <div class="empty-chat" id="emptyChat">
+          <div class="empty-chat-content">
+            <i class="fas fa-message"></i>
+            <h2>Selecciona una conversación</h2>
+            <p>Elige un contacto para comenzar a chatear</p>
+          </div>
+        </div>
+
+        <!-- CONTENEDOR DEL CHAT ACTIVO -->
+        <div class="active-chat" id="activeChat" style="display: none">
+          <!-- HEADER DEL CHAT -->
+          <div class="chat-header">
+            <div class="chat-header-left">
+              <button class="btn-back" id="btnBack" title="Volver">
+                <i class="fas fa-arrow-left"></i>
+              </button>
+              <div class="chat-avatar">
+                <img id="chatAvatar" src="" alt="Avatar" />
+                <span class="status-indicator" id="statusIndicator"></span>
+              </div>
+              <div class="chat-user-details">
+                <h3 id="chatUserName">Usuario</h3>
+                <div class="chat-meta">
+                  <span id="chatStatus" class="chat-status">Online</span>
+                  <span class="separator">•</span>
+                  <span id="projectInfo" class="project-tag">
+                    <i class="fas fa-briefcase"></i>
+                    <span id="projectName">Proyecto</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-header-actions">
+              <div class="btn-action" id="moreOptionsBtn" title="Más opciones">
+                <i class="fas fa-ellipsis-v"></i>
+              </div>
+              <div id="moreOptionsModal" class="more-options-modal hidden">
+                <button
+                  class="option-item"
+                  id="viewProfileBtn"
+                  title="Ver perfil"
+                >
+                  <i class="fas fa-user"></i>
+                  <span>Ver perfil</span>
+                </button>
+                <button
+                  class="option-item"
+                  id="createComputoBtn"
+                  title="Crear cómputo"
+                >
+                  <i class="fas fa-file-contract"></i>
+                  <span>Generar Contrato</span>
+                </button>
+                <button
+                  class="option-item"
+                  id="projectInfoBtn"
+                  title="Info del proyecto"
+                >
+                  <i class="fas fa-info-circle"></i>
+                  <span>Información del Proyecto</span>
+                </button>
+                <button class="option-item danger" id="deleteChatBtn">
+                  <i class="fas fa-trash"></i>
+                  <span>Eliminar chat</span>
+                </button>
+              </div>
+
+              <div id="deleteModal" class="modal hidden">
+                <div class="modal-content">
+                  <h3>
+                    ¿Estás seguro de que deseas eliminar esta conversación?
+                  </h3>
+                  <p>Esta acción no se puede deshacer.</p>
+
+                  <div class="modal-buttons">
+                    <button id="cancelDelete" class="btn cancel">
+                      Cancelar
+                    </button>
+                    <button id="confirmDelete" class="btn btn-error delete">
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ÁREA DE MENSAJES -->
+          <div class="messages-area" id="messagesArea">
+            <div class="messages-loading" id="messagesLoading">
+              <div class="spinner"></div>
+              <p>Cargando mensajes...</p>
+            </div>
+            <div class="messages-container" id="messagesContainer"></div>
+          </div>
+
+          <!-- INPUT DE MENSAJE -->
+          <div class="chat-input">
+            <div
+              class="btn-attachment"
+              id="attachmentBtn"
+              title="Adjuntar archivo"
+            >
+              <i class="fas fa-paperclip"></i>
+            </div>
+            <div class="input-wrapper">
+              <textarea
+                id="messageInput"
+                placeholder="Escribe tu mensaje..."
+                rows="1"
+              ></textarea>
+            </div>
+            <button class="btn-send" id="sendBtn" disabled>
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </main>
+
+      <!-- PANEL DE INFORMACIÓN DEL PROYECTO -->
+      <aside class="project-panel" id="projectPanel" style="display: none">
+        <div class="project-panel-header">
+          <h3>Información del Proyecto</h3>
+          <div class="btn-close-panel" id="closePanelBtn">
+            <i class="fas fa-times"></i>
+          </div>
+        </div>
+
+        <div class="project-panel-content">
+          <div class="project-image-container">
+            <img id="projectImage" src="" alt="Proyecto" />
+          </div>
+
+          <div class="project-details">
+            <h4 id="projectTitle">Nombre del Proyecto</h4>
+
+            <div class="project-info-list">
+              <div class="info-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <div>
+                  <span class="info-label">Ubicación</span>
+                  <span class="info-value" id="projectLocation">-</span>
+                </div>
+              </div>
+
+              <div class="info-item">
+                <i class="fas fa-calendar"></i>
+                <div>
+                  <span class="info-label">Fecha de publicación</span>
+                  <span class="info-value" id="projectDate">-</span>
+                </div>
+              </div>
+
+              <div class="info-item">
+                <i class="fas fa-dollar-sign"></i>
+                <div>
+                  <span class="info-label">Presupuesto</span>
+                  <span class="info-value" id="projectBudget">-</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="project-description">
+              <h5>Descripción</h5>
+              <p id="projectDescription">Sin descripción disponible.</p>
+            </div>
+          </div>
+
+          <div class="project-actions">
+            <button class="btn btn-primary" id="viewProjectBtn">
+              <i class="fas fa-external-link-alt"></i>
+              Ver proyecto completo
+            </button>
+            <button class="btn btn-secondary" id="generateComputoBtn">
+              <i class="fas fa-file-invoice"></i>
+              Generar cómputo
+            </button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <script>
+      // Toggle del menú de usuario
+      document.addEventListener("DOMContentLoaded", function () {
+        const navbar = document.querySelector(".navbar");
+        const menuToggle = document.getElementById("menuToggle");
+        const navMenu = document.querySelector(".navbar nav");
+        const userMenu = document.getElementById("userMenu");
+        const dropdownMenu = document.getElementById("dropdownMenu");
+
+        navbar.classList.add("solidFlex");
+
+        if (menuToggle && navMenu) {
+          menuToggle.addEventListener("click", function () {
+            navMenu.classList.toggle("active");
+          });
+
+          document.addEventListener("click", function (event) {
+            if (
+              !navMenu.contains(event.target) &&
+              !menuToggle.contains(event.target) &&
+              navMenu.classList.contains("active")
+            ) {
+              navMenu.classList.remove("active");
+            }
+          });
+        }
+
+        if (userMenu && dropdownMenu) {
+          userMenu.addEventListener("click", function (event) {
+            event.stopPropagation();
+            dropdownMenu.classList.toggle("active");
+          });
+
+          document.addEventListener("click", function (event) {
+            if (
+              !dropdownMenu.contains(event.target) &&
+              dropdownMenu.classList.contains("active")
+            ) {
+              dropdownMenu.classList.remove("active");
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
